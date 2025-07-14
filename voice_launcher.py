@@ -7,7 +7,7 @@ apps = {
     "facebook": "https://www.facebook.com",
     "twitter": "https://twitter.com",
     "instagram": "https://www.instagram.com",
-    "whatsapp": "https://www.whatsapp.com",
+    "whatsapp": "https://web.whatsapp.com",
     "amazon": "https://www.amazon.com",
     "gmail": "https://mail.google.com",
     "reddit": "https://www.reddit.com",
@@ -17,6 +17,8 @@ apps = {
     "chatgpt": "https://chat.openai.com",
     "stackoverflow": "https://stackoverflow.com",
     "spotify": "https://www.spotify.com",
+    "meet": "https://meet.google.com/new",
+    "googlemeet": "https://meet.google.com/new"
 }
 
 def is_subsequence(pattern, text):
@@ -30,6 +32,12 @@ def is_subsequence(pattern, text):
 def handle_command(command):
     command = command.lower().strip()
 
+    # Special case: start Google Meet
+    if any(phrase in command for phrase in ["start meeting", "new meeting", "google meet", "start google meet"]):
+        print("🔗 Opening Google Meet...")
+        webbrowser.open("https://meet.google.com/new")
+        return
+
     # Search command
     if command.startswith("search for "):
         query = command.replace("search for ", "", 1)
@@ -37,14 +45,16 @@ def handle_command(command):
         return
 
     # Normalize spoken command
-    cleaned = command.replace("open ", "").replace("go to ", "").replace("launch ", "").replace("start ", "").replace(" ", "")
+    cleaned = command.replace("open ", "").replace("go to ", "").replace("launch ", "").replace("search for", "").replace("start ", "").replace(" ", "")
 
     for key in apps:
         if key in cleaned or is_subsequence(key, cleaned):
+            print(f"🔗 Opening {key}...")
             webbrowser.open(apps[key])
             return
 
-    # Default fallback to search
+    # Default fallback to Google search
+    print(f"🔍 Searching for: {command}")
     webbrowser.open(f"https://www.google.com/search?q={command}")
 
 def listen():
@@ -63,7 +73,7 @@ def listen():
     except sr.UnknownValueError:
         print("❌ Could not understand audio.")
     except sr.RequestError as e:
-        print(f"❌ Could not request results; {e}")
+        print(f"❌ Request error: {e}")
 
 if __name__ == "__main__":
     while True:
