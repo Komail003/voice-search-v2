@@ -1,5 +1,6 @@
 import speech_recognition as sr
 import webbrowser
+import os  
 
 apps = {
     "google": "https://www.google.com",
@@ -32,19 +33,22 @@ def is_subsequence(pattern, text):
 def handle_command(command):
     command = command.lower().strip()
 
-    # Special case: start Google Meet
+    if "dev panel" in command:
+        folder_path = r"C:\Users\Amanah Mall\Desktop\Komail Meptics"
+        print(f"📁 Opening folder: {folder_path}")
+        os.startfile(folder_path)
+        return
+
     if any(phrase in command for phrase in ["start meeting", "new meeting", "google meet", "start google meet"]):
         print("🔗 Opening Google Meet...")
         webbrowser.open("https://meet.google.com/new")
         return
 
-    # Search command
     if command.startswith("search for "):
         query = command.replace("search for ", "", 1)
         webbrowser.open(f"https://www.google.com/search?q={query}")
         return
 
-    # Normalize spoken command
     cleaned = command.replace("open ", "").replace("go to ", "").replace("launch ", "").replace("search for", "").replace("start ", "").replace(" ", "")
 
     for key in apps:
@@ -53,7 +57,6 @@ def handle_command(command):
             webbrowser.open(apps[key])
             return
 
-    # Default fallback to Google search
     print(f"🔍 Searching for: {command}")
     webbrowser.open(f"https://www.google.com/search?q={command}")
 
