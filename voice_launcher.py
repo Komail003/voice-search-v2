@@ -1,8 +1,9 @@
 import speech_recognition as sr
 import webbrowser
-import os  
+import os
+import pyautogui
 
-apps = {
+web_apps = {
     "google": "https://www.google.com",
     "youtube": "https://www.youtube.com",
     "facebook": "https://www.facebook.com",
@@ -22,6 +23,25 @@ apps = {
     "googlemeet": "https://meet.google.com/new"
 }
 
+desktop_apps = {
+    "zoom": r"C:\Users\Amanah Mall\AppData\Roaming\Zoom\bin\Zoom.exe",
+    "anydesk": r"C:\Program Files (x86)\AnyDesk\AnyDesk.exe",
+    "vs code": r"C:\Users\Amanah Mall\AppData\Local\Programs\Microsoft VS Code\Code.exe",
+    "vscode": r"C:\Users\Amanah Mall\AppData\Local\Programs\Microsoft VS Code\Code.exe",
+    "notepad": "notepad.exe",
+    "calculator": "calc.exe",
+    "cmd": "cmd.exe"
+}
+
+folder_shortcuts = {
+    "downloads": r"C:\Users\Amanah Mall\Downloads",
+    "documents": r"C:\Users\Amanah Mall\Documents",
+    "desktop": r"C:\Users\Amanah Mall\Desktop",
+    "pictures": r"C:\Users\Amanah Mall\Pictures",
+    "music": r"C:\Users\Amanah Mall\Music",
+    "videos": r"C:\Users\Amanah Mall\Videos"
+}
+
 def is_subsequence(pattern, text):
     i = j = 0
     while i < len(pattern) and j < len(text):
@@ -33,10 +53,48 @@ def is_subsequence(pattern, text):
 def handle_command(command):
     command = command.lower().strip()
 
-    if "dev panel" in command:
+    # FOLDER NAVIGATION
+    for folder_name in folder_shortcuts:
+        if folder_name in command and any(word in command for word in ["open", "go to", "navigate to"]):
+            print(f"📁 Opening {folder_name}...")
+            os.startfile(folder_shortcuts[folder_name])
+            return
+
+    if "developer panel" in command:
         folder_path = r"C:\Users\Amanah Mall\Desktop\Komail Meptics"
         print(f"📁 Opening folder: {folder_path}")
         os.startfile(folder_path)
+        return
+
+    # WINDOW MANAGEMENT
+    if "minimize all" in command or "show desktop" in command:
+        print("🗔 Minimizing all windows...")
+        pyautogui.hotkey('win', 'd')
+        return
+
+    if "stack windows" in command or "snap windows up" in command:
+        print("🗔 Stacking windows upward...")
+        pyautogui.hotkey('win', 'up')
+        return
+
+    if "snap left" in command:
+        print("🗔 Snapping window left...")
+        pyautogui.hotkey('win', 'left')
+        return
+
+    if "snap right" in command:
+        print("🗔 Snapping window right...")
+        pyautogui.hotkey('win', 'right')
+        return
+
+    if "maximize window" in command:
+        print("🗔 Maximizing window...")
+        pyautogui.hotkey('win', 'up')
+        return
+
+    if "minimize window" in command:
+        print("🗔 Minimizing window...")
+        pyautogui.hotkey('win', 'down')
         return
 
     if any(phrase in command for phrase in ["start meeting", "new meeting", "google meet", "start google meet"]):
@@ -51,10 +109,21 @@ def handle_command(command):
 
     cleaned = command.replace("open ", "").replace("go to ", "").replace("launch ", "").replace("search for", "").replace("start ", "").replace(" ", "")
 
-    for key in apps:
+    for key in desktop_apps:
+        if key.replace(" ", "") in cleaned or is_subsequence(key.replace(" ", ""), cleaned):
+            print(f"🖥️ Launching {key}...")
+            try:
+                os.startfile(desktop_apps[key])
+            except FileNotFoundError:
+                print(f"❌ Could not find {key}. Check the path.")
+            except Exception as e:
+                print(f"❌ Failed to launch {key}: {e}")
+            return
+
+    for key in web_apps:
         if key in cleaned or is_subsequence(key, cleaned):
             print(f"🔗 Opening {key}...")
-            webbrowser.open(apps[key])
+            webbrowser.open(web_apps[key])
             return
 
     print(f"🔍 Searching for: {command}")
